@@ -1,0 +1,3 @@
+package com.aamirashraf.mvvmchatappusingstreamsdk
+
+const val MIN_USERNAME_LEN=3
