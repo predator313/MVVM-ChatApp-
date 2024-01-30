@@ -32,6 +32,8 @@ class LoginFragment:BindingFragment<FragmentLoginBinding>() {
         }
         subscribeToEvents()
     }
+    //getting lots of error in dependency injection
+    //dagger is not setup yet
 
     private fun subscribeToEvents(){
         lifecycleScope.launch {
