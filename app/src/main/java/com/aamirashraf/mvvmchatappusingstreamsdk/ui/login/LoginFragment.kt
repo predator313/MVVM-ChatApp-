@@ -9,63 +9,76 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
+import com.aamirashraf.mvvmchatappusingstreamsdk.MIN_USERNAME_LEN
+import com.aamirashraf.mvvmchatappusingstreamsdk.R
 import com.aamirashraf.mvvmchatappusingstreamsdk.databinding.FragmentLoginBinding
 import com.aamirashraf.mvvmchatappusingstreamsdk.ui.BindingFragment
+import dagger.Module
+import dagger.Provides
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import javax.inject.Singleton
+
 
 @AndroidEntryPoint
-class LoginFragment:BindingFragment<FragmentLoginBinding>() {
+class LoginFragment : BindingFragment<FragmentLoginBinding>() {
+
     override val bindingInflater: (LayoutInflater) -> ViewBinding
         get() = FragmentLoginBinding::inflate
 
-    private val viewModel:LoginViewModel by viewModels()
+    private val viewModel: LoginViewModel by viewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.btnConfirm.setOnClickListener{
+        binding.btnConfirm.setOnClickListener {
             setupConnectingUiState()
             viewModel.connectUser(binding.etUsername.text.toString())
         }
+
         binding.etUsername.addTextChangedListener {
-            binding.etUsername.error=null
+            binding.etUsername.error = null
         }
+
         subscribeToEvents()
     }
-    //getting lots of error in dependency injection
-    //dagger is not setup yet
 
-    private fun subscribeToEvents(){
-        lifecycleScope.launch {
-            viewModel.loginEvent.collect{event->
-                when(event){
-                    is LoginViewModel.LoginEvents.ErrorInputTooShort->{
+    private fun subscribeToEvents() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.loginEvent.collect { event ->
+                when(event) {
+                    is LoginViewModel.LogInEvent.ErrorInputTooShort -> {
                         setupIdleUiState()
-                        binding.etUsername.error
+                        binding.etUsername.error = getString(R.string.error_username_too_short, MIN_USERNAME_LEN)
                     }
-                    is LoginViewModel.LoginEvents.ErrorLogin->{
+                    is LoginViewModel.LogInEvent.ErrorLogIn -> {
                         setupIdleUiState()
                         Toast.makeText(
                             requireContext(),
                             event.error,
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
-                    is LoginViewModel.LoginEvents.Success->{
+                    is LoginViewModel.LogInEvent.Success -> {
                         setupIdleUiState()
+                        Toast.makeText(
+                            requireContext(),
+                            "Successful login",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
-
             }
         }
     }
 
-    private fun setupConnectingUiState(){
-        binding.progressBar.isVisible=true
-        binding.btnConfirm.isEnabled=false
+    private fun setupConnectingUiState() {
+        binding.progressBar.isVisible = true
+        binding.btnConfirm.isEnabled = false
     }
-    private fun setupIdleUiState(){
-        binding.progressBar.isVisible=false
-        binding.btnConfirm.isEnabled=true
+
+    private fun setupIdleUiState() {
+        binding.progressBar.isVisible = false
+        binding.btnConfirm.isEnabled = true
     }
 }

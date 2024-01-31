@@ -15,37 +15,36 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val client: ChatClient
-):ViewModel() {
-    private val _loginEvent= MutableSharedFlow<LoginEvents>()
-    val loginEvent=_loginEvent.asSharedFlow()
-    private fun isValidUserName(userName:String):Boolean{
-        return userName.length>= MIN_USERNAME_LEN
-    }
-    fun connectUser(userName: String){
-        val trimUserName=userName.trim()
+) : ViewModel() {
+
+    private val _loginEvent = MutableSharedFlow<LogInEvent>()
+    val loginEvent = _loginEvent.asSharedFlow()
+
+    private fun isValidUsername(username: String) =
+        username.length >= MIN_USERNAME_LEN
+
+    fun connectUser(username: String) {
+        val trimmedUsername = username.trim()
         viewModelScope.launch {
-            if(isValidUserName(trimUserName)){
-                //now lets make the network call in the stream
-                val res=client.connectGuestUser(
-                   userId =  trimUserName,
-                   username =  trimUserName
+            if(isValidUsername(trimmedUsername)) {
+                val result = client.connectGuestUser(
+                    userId = trimmedUsername,
+                    username = trimmedUsername
                 ).await()
-                if(res.isError){
-                    //means some error from stream backend
-                    _loginEvent.emit(LoginEvents.ErrorLogin(res.error().message?:"Unknown Error"))
+                if(result.isError) {
+                    _loginEvent.emit(LogInEvent.ErrorLogIn(result.error().message ?: "Unknown error"))
                     return@launch
                 }
-                _loginEvent.emit(LoginEvents.Success)
-            }
-            else{
-                _loginEvent.emit(LoginEvents.ErrorInputTooShort)
+                _loginEvent.emit(LogInEvent.Success)
+            } else {
+                _loginEvent.emit(LogInEvent.ErrorInputTooShort)
             }
         }
     }
 
-     sealed class LoginEvents{
-         data object ErrorInputTooShort:LoginEvents()
-         data class ErrorLogin(val error:String):LoginEvents()
-         data object Success:LoginEvents()
-     }
+    sealed class LogInEvent {
+        object ErrorInputTooShort : LogInEvent()
+        data class ErrorLogIn(val error: String) : LogInEvent()
+        object Success : LogInEvent()
+    }
 }
