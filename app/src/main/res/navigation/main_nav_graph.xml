@@ -15,5 +15,17 @@
     <fragment
         android:id="@+id/channelFragment"
         android:name="com.aamirashraf.mvvmchatappusingstreamsdk.ui.channel.ChannelFragment"
-        android:label="ChannelFragment" />
+        android:label="ChannelFragment" >
+        <action
+            android:id="@+id/action_channelFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.aamirashraf.mvvmchatappusingstreamsdk.ui.chats.ChatFragment"
+        android:label="ChatFragment" >
+        <argument
+            android:name="channelId"
+            app:argType="string" />
+    </fragment>
 </navigation>

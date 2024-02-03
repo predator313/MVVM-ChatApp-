@@ -5,7 +5,9 @@ buildscript {
     }
 
     dependencies {
+        val nav_version = "2.7.6"
         classpath ("com.google.dagger:hilt-android-gradle-plugin:2.50")
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version")
     }
 }
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
